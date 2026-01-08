@@ -24,26 +24,43 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         .container {
             text-align: center;
             padding: 20px;
+            max-width: 500px;
+            width: 100%;
         }
 
         h1 {
             color: #e94560;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .display-area {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
         }
 
         .fish-display {
             font-size: 120px;
-            height: 180px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
@@ -52,30 +69,163 @@
             opacity: 0.5;
         }
 
+        #capturedImage, #generatedImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        #videoPreview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
         .fish-name {
             color: #eee;
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            min-height: 30px;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            min-height: 24px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
         }
 
         .button {
             background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
             color: white;
             border: none;
-            padding: 18px 36px;
-            font-size: 1.2rem;
+            padding: 16px 32px;
+            font-size: 1rem;
             font-weight: 600;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             -webkit-tap-highlight-color: transparent;
+            width: 240px;
         }
 
         .button:active {
             transform: scale(0.95);
             box-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
+        }
+
+        .button.secondary {
+            background: linear-gradient(135deg, #4a69bd 0%, #6a89cc 100%);
+            box-shadow: 0 4px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .button.small {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            width: auto;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .settings-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .modal-content h2 {
+            color: #e94560;
+            margin-bottom: 20px;
+        }
+
+        .modal-content label {
+            color: #eee;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #0f0f1a;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            display: none;
+            color: #eee;
+            font-size: 1rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #e94560;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 10px;
         }
 
         .bubbles {
@@ -107,19 +257,65 @@
                 opacity: 0;
             }
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
     <div class="bubbles" id="bubbles"></div>
 
+    <button class="settings-btn" id="settingsBtn">&#9881;</button>
+
     <div class="container">
         <h1>FishApp</h1>
-        <div class="fish-display" id="fishDisplay"></div>
+        <p class="subtitle">Become one with the fish</p>
+
+        <div class="display-area">
+            <div class="fish-display" id="fishDisplay"></div>
+            <video id="videoPreview" autoplay playsinline></video>
+            <img id="capturedImage" alt="Your photo">
+            <img id="generatedImage" alt="Fish hybrid">
+        </div>
+
         <p class="fish-name" id="fishName"></p>
-        <button class="button" id="nextFish">Show Different Fish</button>
+        <p class="loading" id="loading"><span class="spinner"></span>Creating your fish form...</p>
+        <p class="error" id="error"></p>
+
+        <div class="buttons" id="mainButtons">
+            <button class="button" id="nextFish">Show Different Fish</button>
+            <button class="button secondary" id="startCamera">Take Photo</button>
+        </div>
+
+        <div class="buttons hidden" id="cameraButtons">
+            <button class="button" id="captureBtn">Capture</button>
+            <button class="button secondary" id="cancelCamera">Cancel</button>
+        </div>
+
+        <div class="buttons hidden" id="photoButtons">
+            <button class="button" id="fishifyBtn">Fishify Me!</button>
+            <button class="button secondary" id="retakeBtn">Retake</button>
+        </div>
+
+        <div class="buttons hidden" id="resultButtons">
+            <button class="button" id="saveBtn">Save Image</button>
+            <button class="button secondary" id="startOverBtn">Start Over</button>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2>Settings</h2>
+            <label for="apiKey">Gemini API Key</label>
+            <input type="password" id="apiKey" placeholder="Enter your API key">
+            <button class="button" id="saveSettings">Save</button>
+            <button class="button secondary small" id="closeSettings" style="margin-top: 10px;">Cancel</button>
+        </div>
     </div>
 
     <script>
+        // Fish data
         const fish = [
             { emoji: '🐟', name: 'Fish' },
             { emoji: '🐠', name: 'Tropical Fish' },
@@ -136,10 +332,24 @@
         ];
 
         let currentIndex = 0;
+        let currentStream = null;
+        let capturedImageData = null;
+
+        // DOM elements
         const fishDisplay = document.getElementById('fishDisplay');
         const fishName = document.getElementById('fishName');
-        const button = document.getElementById('nextFish');
+        const videoPreview = document.getElementById('videoPreview');
+        const capturedImage = document.getElementById('capturedImage');
+        const generatedImage = document.getElementById('generatedImage');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
 
+        const mainButtons = document.getElementById('mainButtons');
+        const cameraButtons = document.getElementById('cameraButtons');
+        const photoButtons = document.getElementById('photoButtons');
+        const resultButtons = document.getElementById('resultButtons');
+
+        // Fish display functions
         function updateFish() {
             fishDisplay.textContent = fish[currentIndex].emoji;
             fishName.textContent = fish[currentIndex].name;
@@ -147,7 +357,6 @@
 
         function nextFish() {
             fishDisplay.classList.add('changing');
-
             setTimeout(() => {
                 currentIndex = (currentIndex + 1) % fish.length;
                 updateFish();
@@ -155,9 +364,192 @@
             }, 150);
         }
 
-        button.addEventListener('click', nextFish);
+        // UI state management
+        function showState(state) {
+            fishDisplay.style.display = 'none';
+            videoPreview.style.display = 'none';
+            capturedImage.style.display = 'none';
+            generatedImage.style.display = 'none';
+            mainButtons.classList.add('hidden');
+            cameraButtons.classList.add('hidden');
+            photoButtons.classList.add('hidden');
+            resultButtons.classList.add('hidden');
+            loading.classList.remove('active');
+            error.textContent = '';
+            fishName.textContent = '';
 
-        // Create ambient bubbles
+            switch(state) {
+                case 'fish':
+                    fishDisplay.style.display = 'flex';
+                    mainButtons.classList.remove('hidden');
+                    updateFish();
+                    break;
+                case 'camera':
+                    videoPreview.style.display = 'block';
+                    cameraButtons.classList.remove('hidden');
+                    break;
+                case 'captured':
+                    capturedImage.style.display = 'block';
+                    photoButtons.classList.remove('hidden');
+                    break;
+                case 'loading':
+                    capturedImage.style.display = 'block';
+                    loading.classList.add('active');
+                    break;
+                case 'result':
+                    generatedImage.style.display = 'block';
+                    resultButtons.classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // Camera functions
+        async function startCamera() {
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user', width: { ideal: 512 }, height: { ideal: 512 } }
+                });
+                videoPreview.srcObject = currentStream;
+                showState('camera');
+            } catch (err) {
+                error.textContent = 'Could not access camera: ' + err.message;
+            }
+        }
+
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+        }
+
+        function capturePhoto() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Calculate crop to square
+            const video = videoPreview;
+            const size = Math.min(video.videoWidth, video.videoHeight);
+            const x = (video.videoWidth - size) / 2;
+            const y = (video.videoHeight - size) / 2;
+
+            ctx.drawImage(video, x, y, size, size, 0, 0, 512, 512);
+            capturedImageData = canvas.toDataURL('image/jpeg', 0.8);
+            capturedImage.src = capturedImageData;
+
+            stopCamera();
+            showState('captured');
+        }
+
+        // Gemini API integration
+        async function fishifyImage() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                document.getElementById('settingsModal').classList.add('active');
+                error.textContent = 'Please set your Gemini API key first';
+                return;
+            }
+
+            showState('loading');
+
+            try {
+                // Extract base64 data from data URL
+                const base64Data = capturedImageData.split(',')[1];
+                const currentFish = fish[currentIndex];
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                {
+                                    inlineData: {
+                                        mimeType: 'image/jpeg',
+                                        data: base64Data
+                                    }
+                                },
+                                {
+                                    text: `Transform this person into a magical human-${currentFish.name.toLowerCase()} hybrid creature. Keep their face recognizable but give them fish-like features such as scales, fins, gills, and an underwater aesthetic. Make it look like a beautiful fantasy creature that is half human, half ${currentFish.name.toLowerCase()}. The style should be artistic and whimsical.`
+                                }
+                            ]
+                        }],
+                        generationConfig: {
+                            responseModalities: ["TEXT", "IMAGE"]
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error?.message || 'API request failed');
+                }
+
+                const data = await response.json();
+
+                // Find the image in the response
+                let imageData = null;
+                if (data.candidates && data.candidates[0]?.content?.parts) {
+                    for (const part of data.candidates[0].content.parts) {
+                        if (part.inlineData?.mimeType?.startsWith('image/')) {
+                            imageData = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                            break;
+                        }
+                    }
+                }
+
+                if (!imageData) {
+                    throw new Error('No image was generated. The model may not support image generation.');
+                }
+
+                generatedImage.src = imageData;
+                fishName.textContent = `You as a ${currentFish.name}!`;
+                showState('result');
+
+            } catch (err) {
+                console.error('Fishify error:', err);
+                error.textContent = 'Error: ' + err.message;
+                showState('captured');
+            }
+        }
+
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = 'fish-me.png';
+            link.href = generatedImage.src;
+            link.click();
+        }
+
+        function startOver() {
+            capturedImageData = null;
+            showState('fish');
+        }
+
+        // Settings
+        function openSettings() {
+            document.getElementById('apiKey').value = localStorage.getItem('geminiApiKey') || '';
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function saveSettings() {
+            const key = document.getElementById('apiKey').value.trim();
+            if (key) {
+                localStorage.setItem('geminiApiKey', key);
+            } else {
+                localStorage.removeItem('geminiApiKey');
+            }
+            closeSettings();
+        }
+
+        // Bubbles
         function createBubbles() {
             const bubblesContainer = document.getElementById('bubbles');
             for (let i = 0; i < 15; i++) {
@@ -171,9 +563,29 @@
             }
         }
 
+        // Event listeners
+        document.getElementById('nextFish').addEventListener('click', nextFish);
+        document.getElementById('startCamera').addEventListener('click', startCamera);
+        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+        document.getElementById('cancelCamera').addEventListener('click', () => { stopCamera(); showState('fish'); });
+        document.getElementById('fishifyBtn').addEventListener('click', fishifyImage);
+        document.getElementById('retakeBtn').addEventListener('click', startCamera);
+        document.getElementById('saveBtn').addEventListener('click', saveImage);
+        document.getElementById('startOverBtn').addEventListener('click', startOver);
+        document.getElementById('settingsBtn').addEventListener('click', openSettings);
+        document.getElementById('saveSettings').addEventListener('click', saveSettings);
+        document.getElementById('closeSettings').addEventListener('click', closeSettings);
+
         // Initialize
-        updateFish();
+        showState('fish');
         createBubbles();
+
+        // Show settings on first load if no API key
+        if (!localStorage.getItem('geminiApiKey')) {
+            setTimeout(() => {
+                openSettings();
+            }, 500);
+        }
     </script>
 </body>
 </html>
